@@ -1,0 +1,844 @@
+{
+    "version": "1.1.0",
+    "prompt_language": "en",
+    "interface_protocols": {
+        "pytorch_task_v1": {
+            "entrypoint": "python tasks/<task_id>/task.py",
+            "prompt_instructions": "Implement this ML task as a SINGLE self-contained Python file (task.py). Include all required functions AND a complete `if __name__ == '__main__':` block that trains the model, evaluates on a validation split, prints standard metrics (MSE, R2, parameter accuracy where applicable), and asserts quality thresholds so the script exits non-zero on failure. Do NOT create separate test files or README. The script itself is the test.",
+            "must_have_files": [
+                "tasks/<task_id>/task.py"
+            ],
+            "required_functions": [
+                "get_task_metadata",
+                "set_seed",
+                "get_device",
+                "make_dataloaders",
+                "build_model",
+                "train",
+                "evaluate",
+                "predict",
+                "save_artifacts"
+            ],
+            "evaluation_rules": [
+                "The `evaluate()` function MUST compute and return standard metrics: MSE, R2 score, and any task-specific metrics on the VALIDATION data split.",
+                "The `if __name__ == '__main__':` block MUST: (1) train the model, (2) evaluate on BOTH train and validation splits, (3) print all metrics clearly, (4) assert quality thresholds (e.g., R2 > 0.9, MSE < threshold), (5) exit 0 on success or non-zero on failure.",
+                "Do NOT use a separate test file. All evaluation logic goes in main()."
+            ],
+            "required_cfg_keys": [],
+            "standard_outputs_schema": {},
+            "docstring_rules": []
+        }
+    },
+    "tasks": [
+        {
+            "series": "Linear Regression",
+            "level": 1,
+            "id": "linreg_lvl1_raw_tensors",
+            "algorithm": "Linear Regression (Raw Tensors)",
+            "description": "Implement Univariate Linear Regression using ONLY PyTorch tensors. Do NOT use torch.nn, torch.optim, or autograd. Write everything in a single task.py file with a complete main() that trains, evaluates, and validates.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Docstring must contain h_theta(x) = theta_0 + theta_1*x and the MSE cost function formula.",
+                "data": "Synthetic: y = 2x + 3 + noise. Split into 80% train / 20% validation.",
+                "implementation": "Manual GD update: theta = theta - lr * grad (compute grad by hand). No torch.nn, no torch.optim, no autograd.",
+                "evaluation": "The evaluate() function must compute MSE, R2 score, and parameter accuracy (how close theta_0 is to 3.0 and theta_1 is to 2.0) on the VALIDATION split.",
+                "main_block": "The if __name__ == '__main__' block must: train for enough epochs, print train/val MSE, R2, learned parameters vs true, and assert R2 > 0.9 on validation and parameter error < 1.0.",
+                "output": "Return dict with loss_history, val_loss_history, final metrics."
+            }
+        },
+        {
+            "series": "Linear Regression",
+            "level": 2,
+            "id": "linreg_lvl2_autograd_viz",
+            "algorithm": "Linear Regression (Autograd & Visualization)",
+            "description": "Implement Multivariate Linear Regression using torch.autograd. Visualize training.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Explain $\\nabla J(\\theta)$ in LaTeX.",
+                "data": "Synthetic multivariate: X shape [100, 5].",
+                "implementation": "Use loss.backward(); update in torch.no_grad(); implement train().",
+                "visualization": "Save 'linreg_lvl2_loss.png' and 'linreg_lvl2_pred.png'.",
+                "validation": "Loss decreases monotonically after warmup (allow small noise)."
+            }
+        },
+        {
+            "series": "Linear Regression",
+            "level": 3,
+            "id": "linreg_lvl3_regularization_optim",
+            "algorithm": "Polynomial Regression (Ridge + SGD + GPU)",
+            "description": "Polynomial regression with L2 regularization using torch.nn + torch.optim; device agnostic.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Define Ridge objective: $J(\\theta)+\\lambda\\sum_j\\theta_j^2$.",
+                "data": "Nonlinear: y = x^2 + noise; manual poly features.",
+                "implementation": "torch.nn.Linear; SGD(momentum) OR weight_decay; cuda/cpu safe.",
+                "visualization": "Save 'linreg_lvl3_fit.png'.",
+                "validation": "Compare train vs val loss; avoid severe overfit."
+            }
+        },
+        {
+            "series": "Linear Regression",
+            "level": 4,
+            "id": "linreg_lvl4_sklearn_production",
+            "algorithm": "Linear Regression (Industrial Comparison)",
+            "description": "EDA + preprocessing + PyTorch vs Sklearn on real dataset with standardized JSON output.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Use sklearn.datasets.fetch_california_housing; train/test split.",
+                "eda": "Correlation matrix + target distribution; save plots.",
+                "preprocessing": "Manual StandardScaler for PyTorch; sklearn scaler for sklearn.",
+                "api": "PyTorch model wrapped with fit()/predict() sklearn-style.",
+                "comparison": "Report R2 and RMSE; assert PyTorch within 5% of sklearn.",
+                "output": "Standard outputs schema with metrics comparison."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 1,
+            "id": "logreg_lvl1_binary_raw",
+            "algorithm": "Logistic Regression (Binary, Raw Tensors)",
+            "description": "Binary logistic regression with manual sigmoid and manual gradients (no autograd).",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include $\\sigma(z)=\\frac{1}{1+e^{-z}}$ and log-loss in LaTeX.",
+                "data": "Two Gaussian clusters; standardized features.",
+                "implementation": "Manual gradient for weights + bias; GD loop.",
+                "validation": "Assert accuracy > 0.90."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 2,
+            "id": "logreg_lvl2_multiclass_softmax",
+            "algorithm": "Softmax Regression (Multiclass)",
+            "description": "Multiclass softmax regression using torch.nn.Module + CrossEntropyLoss.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Explain softmax + cross entropy in LaTeX.",
+                "data": "3-class blobs or spirals.",
+                "implementation": "nn.Module; Adam; CrossEntropyLoss.",
+                "visualization": "Decision boundary contour -> 'logreg_lvl2_boundary.png'.",
+                "validation": "Macro-F1 > 0.85."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 3,
+            "id": "logreg_lvl3_imbalanced_metrics",
+            "algorithm": "Logistic Regression (Imbalanced + Metrics)",
+            "description": "Imbalanced binary classification with weighted loss + early stopping; manual metrics.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Imbalanced synthetic: 95/5.",
+                "implementation": "Weighted CE (manual or by class weights), early stopping on val F1.",
+                "metrics": "Manual confusion matrix, precision/recall/F1; verify vs sklearn.",
+                "visualization": "Precision-Recall curve plot saved.",
+                "validation": "Recall improved vs unweighted baseline."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 4,
+            "id": "logreg_lvl4_calibration_thresholding",
+            "algorithm": "Logistic Regression (Calibration & Thresholding)",
+            "description": "Probability calibration (Platt/Isotonic via sklearn for reference) + threshold optimization in PyTorch.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Real dataset: sklearn breast cancer or similar.",
+                "implementation": "Compute ECE (Expected Calibration Error) manually; optimize threshold for F1.",
+                "visualization": "Reliability diagram + ROC curve.",
+                "validation": "ECE decreases after calibration step (compare before/after)."
+            }
+        },
+        {
+            "series": "k-Nearest Neighbors",
+            "level": 1,
+            "id": "knn_lvl1_bruteforce",
+            "algorithm": "kNN (Brute Force)",
+            "description": "Implement kNN classifier with pure tensor distance computations; no sklearn.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Define L2 distance and majority vote.",
+                "implementation": "Vectorized distance (no Python loops over samples).",
+                "validation": "Accuracy close to sklearn KNeighborsClassifier (within 2%)."
+            }
+        },
+        {
+            "series": "k-Nearest Neighbors",
+            "level": 2,
+            "id": "knn_lvl2_weighted_knn",
+            "algorithm": "kNN (Distance-Weighted + Regression)",
+            "description": "Add distance-weighted voting + kNN regression mode.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "implementation": "Support classification + regression via cfg['model']['mode'].",
+                "validation": "Regression RMSE improves vs unweighted baseline."
+            }
+        },
+        {
+            "series": "k-Nearest Neighbors",
+            "level": 3,
+            "id": "knn_lvl3_metric_learning_intro",
+            "algorithm": "kNN + Learned Mahalanobis Metric",
+            "description": "Learn a linear transform A to improve kNN (simple metric learning objective).",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "implementation": "Optimize A with autograd; then run kNN in transformed space.",
+                "validation": "Accuracy improves over vanilla kNN on a synthetic dataset."
+            }
+        },
+        {
+            "series": "k-Nearest Neighbors",
+            "level": 4,
+            "id": "knn_lvl4_ann_indexing_report",
+            "algorithm": "kNN (Engineering & Benchmarking)",
+            "description": "Engineering report: batching, memory, speed benchmark; optional FAISS comparison if available.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "benchmark": "Measure latency vs dataset size; save plot 'knn_latency.png'.",
+                "validation": "Provide speed/accuracy trade-off table in outputs['metrics']."
+            }
+        },
+        {
+            "series": "Naive Bayes",
+            "level": 1,
+            "id": "nb_lvl1_gaussian_nb",
+            "algorithm": "Gaussian Naive Bayes",
+            "description": "Implement Gaussian NB from first principles; compare with sklearn.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include Gaussian likelihood and log-posterior argmax.",
+                "validation": "Accuracy within 3% of sklearn GaussianNB."
+            }
+        },
+        {
+            "series": "Naive Bayes",
+            "level": 2,
+            "id": "nb_lvl2_multinomial_nb_text",
+            "algorithm": "Multinomial NB (Text)",
+            "description": "Bag-of-words + Multinomial NB for text classification.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Use sklearn 20newsgroups subset OR a small embedded toy corpus.",
+                "implementation": "Laplace smoothing; log-space computations.",
+                "validation": "Macro-F1 reported; sanity checks on priors/likelihoods."
+            }
+        },
+        {
+            "series": "Naive Bayes",
+            "level": 3,
+            "id": "nb_lvl3_feature_hashing",
+            "algorithm": "NB + Feature Hashing",
+            "description": "Implement feature hashing to control dimensionality; evaluate trade-offs.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "visualization": "Plot F1 vs hash_dim; save plot.",
+                "validation": "Show monotonic memory drop as dim decreases."
+            }
+        },
+        {
+            "series": "Naive Bayes",
+            "level": 4,
+            "id": "nb_lvl4_production_inference",
+            "algorithm": "NB (Production Inference Pipeline)",
+            "description": "Serialize model stats + fast batched inference; include latency benchmark.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "artifacts": "Save model parameters to JSON or torch file; provide load() function.",
+                "benchmark": "Report throughput samples/sec."
+            }
+        },
+        {
+            "series": "Decision Trees",
+            "level": 1,
+            "id": "dtree_lvl1_gini_split",
+            "algorithm": "Decision Tree (Gini, From Scratch)",
+            "description": "Implement CART-style binary splits with Gini impurity; no sklearn.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Define Gini and information gain.",
+                "implementation": "Recursive tree; max_depth, min_samples_split.",
+                "validation": "Match sklearn DecisionTreeClassifier accuracy within 5% on Iris."
+            }
+        },
+        {
+            "series": "Decision Trees",
+            "level": 2,
+            "id": "dtree_lvl2_regression_mse",
+            "algorithm": "Decision Tree Regression (MSE)",
+            "description": "Regression tree with MSE split criterion.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Synthetic piecewise function.",
+                "validation": "RMSE improves vs linear regression baseline."
+            }
+        },
+        {
+            "series": "Decision Trees",
+            "level": 3,
+            "id": "dtree_lvl3_pruning",
+            "algorithm": "Decision Tree (Pruning + CV)",
+            "description": "Implement cost-complexity pruning conceptually and validate with cross-validation.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "visualization": "Plot depth vs val score; save plot.",
+                "validation": "Pruned model generalizes better than unpruned."
+            }
+        },
+        {
+            "series": "Decision Trees",
+            "level": 4,
+            "id": "dtree_lvl4_feature_importance",
+            "algorithm": "Decision Tree (Interpretability)",
+            "description": "Compute feature importance + permutation importance; compare with sklearn.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Top-k important features overlap with sklearn permutation importance."
+            }
+        },
+        {
+            "series": "Support Vector Machines",
+            "level": 1,
+            "id": "svm_lvl1_hinge_primal",
+            "algorithm": "Linear SVM (Primal, Hinge Loss)",
+            "description": "Implement linear SVM with hinge loss + L2 regularization using autograd.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include hinge loss and margin concept in LaTeX.",
+                "validation": "Accuracy within 3% of sklearn LinearSVC on a toy dataset."
+            }
+        },
+        {
+            "series": "Support Vector Machines",
+            "level": 2,
+            "id": "svm_lvl2_kernel_rbf_dual",
+            "algorithm": "Kernel SVM (RBF, Dual - Simplified)",
+            "description": "Implement simplified dual optimization (projected GD) for small datasets; RBF kernel.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "implementation": "Support kernel function; small N only; document complexity.",
+                "validation": "Nonlinear dataset accuracy > linear baseline."
+            }
+        },
+        {
+            "series": "Support Vector Machines",
+            "level": 3,
+            "id": "svm_lvl3_multiclass_ovr",
+            "algorithm": "SVM Multiclass (One-vs-Rest)",
+            "description": "Build OVR wrapper and report macro metrics.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Macro-F1 > 0.85 on 3-class blobs."
+            }
+        },
+        {
+            "series": "Support Vector Machines",
+            "level": 4,
+            "id": "svm_lvl4_calibrated_scores",
+            "algorithm": "SVM (Score Calibration + ROC/PR)",
+            "description": "Calibrate decision scores; produce ROC/PR curves and AUC.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "visualization": "Save ROC and PR plots.",
+                "validation": "AUC reported + sanity checks."
+            }
+        },
+        {
+            "series": "Clustering",
+            "level": 1,
+            "id": "cluster_lvl1_kmeans",
+            "algorithm": "K-Means (From Scratch)",
+            "description": "Implement k-means with k-means++ init and vectorized updates.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include objective: within-cluster SSE.",
+                "validation": "Inertia decreases; compare to sklearn KMeans (within 5%)."
+            }
+        },
+        {
+            "series": "Clustering",
+            "level": 2,
+            "id": "cluster_lvl2_gmm_em",
+            "algorithm": "Gaussian Mixture Model (EM)",
+            "description": "Implement GMM with EM; log-likelihood tracking; diagonal cov option.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Log-likelihood non-decreasing; clusters reasonable."
+            }
+        },
+        {
+            "series": "Clustering",
+            "level": 3,
+            "id": "cluster_lvl3_dbscan",
+            "algorithm": "DBSCAN (Density Clustering)",
+            "description": "Implement DBSCAN; distance precompute; handle noise points.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Finds non-convex clusters on moons dataset."
+            }
+        },
+        {
+            "series": "Clustering",
+            "level": 4,
+            "id": "cluster_lvl4_spectral",
+            "algorithm": "Spectral Clustering",
+            "description": "Build affinity matrix, Laplacian eigenmaps, then k-means in embedding space.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Improves over k-means on moons dataset."
+            }
+        },
+        {
+            "series": "Dimensionality Reduction",
+            "level": 1,
+            "id": "dr_lvl1_pca_svd",
+            "algorithm": "PCA (SVD)",
+            "description": "Implement PCA using SVD; explained variance; reconstruction error.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Reconstruction error decreases with more components."
+            }
+        },
+        {
+            "series": "Dimensionality Reduction",
+            "level": 2,
+            "id": "dr_lvl2_lda",
+            "algorithm": "LDA (Supervised Projection)",
+            "description": "Implement Linear Discriminant Analysis projection; compare to sklearn.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "1-NN in LDA space beats PCA space on Iris."
+            }
+        },
+        {
+            "series": "Dimensionality Reduction",
+            "level": 3,
+            "id": "dr_lvl3_tsne_simplified",
+            "algorithm": "t-SNE (Simplified)",
+            "description": "Implement simplified t-SNE for small N; visualize embeddings.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "visualization": "Save 2D embedding plot.",
+                "validation": "KL divergence decreases during optimization."
+            }
+        },
+        {
+            "series": "Dimensionality Reduction",
+            "level": 4,
+            "id": "dr_lvl4_umap_like",
+            "algorithm": "UMAP-like (Graph + SGD, Simplified)",
+            "description": "Construct kNN graph, optimize low-dim embedding with negative sampling (conceptual UMAP).",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Neighbor preservation metric reported."
+            }
+        },
+        {
+            "series": "Ensembles",
+            "level": 1,
+            "id": "ens_lvl1_bagging",
+            "algorithm": "Bagging (Bootstrap Aggregation)",
+            "description": "Implement bagging with base learner = small decision tree from your dtree series.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Bagging reduces variance: lower test error than single tree."
+            }
+        },
+        {
+            "series": "Ensembles",
+            "level": 2,
+            "id": "ens_lvl2_random_forest",
+            "algorithm": "Random Forest (From Scratch, Simplified)",
+            "description": "Random feature subsampling + bagging; report OOB score.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "OOB score close to test score (difference < 0.05)."
+            }
+        },
+        {
+            "series": "Ensembles",
+            "level": 3,
+            "id": "ens_lvl3_gbdt",
+            "algorithm": "Gradient Boosting (Regression, Stagewise)",
+            "description": "Implement gradient boosting for regression with shallow trees; learning rate + early stopping.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Boosting beats single tree on RMSE."
+            }
+        },
+        {
+            "series": "Ensembles",
+            "level": 4,
+            "id": "ens_lvl4_xgboost_style_report",
+            "algorithm": "Boosting (Engineering & Benchmarking)",
+            "description": "Add shrinkage, subsampling, depth tuning; write report artifact (markdown) summarizing trade-offs.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "artifacts": "Save 'report.md' in output_dir; include plots."
+            }
+        },
+        {
+            "series": "Anomaly Detection",
+            "level": 1,
+            "id": "anom_lvl1_zscore_iqr",
+            "algorithm": "Statistical Anomaly Detection (Z-score/IQR)",
+            "description": "Implement z-score and IQR rules; evaluate on synthetic anomalies.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Precision > 0.8 on controlled synthetic data."
+            }
+        },
+        {
+            "series": "Anomaly Detection",
+            "level": 2,
+            "id": "anom_lvl2_isolation_forest_like",
+            "algorithm": "Isolation Forest (Simplified)",
+            "description": "Implement isolation trees conceptually; anomaly score by path length.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "AUC reported on synthetic dataset."
+            }
+        },
+        {
+            "series": "Anomaly Detection",
+            "level": 3,
+            "id": "anom_lvl3_one_class_svm",
+            "algorithm": "One-Class SVM (Conceptual, Small N)",
+            "description": "Implement small-scale one-class objective; compare vs sklearn OneClassSVM.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Qualitative agreement with sklearn on decision boundary."
+            }
+        },
+        {
+            "series": "Anomaly Detection",
+            "level": 4,
+            "id": "anom_lvl4_autoencoder_anom",
+            "algorithm": "Autoencoder Anomaly Detection",
+            "description": "Train AE; use reconstruction error as anomaly score; threshold tuning.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "visualization": "Plot error distribution + ROC.",
+                "validation": "AUC improves over z-score baseline."
+            }
+        },
+        {
+            "series": "Neural Networks (MLP)",
+            "level": 1,
+            "id": "mlp_lvl1_numpy_to_torch",
+            "algorithm": "MLP (Manual Backprop)",
+            "description": "2-layer MLP with manual backprop (no autograd).",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include chain rule derivations for one hidden layer.",
+                "validation": "Solve XOR with > 0.95 accuracy."
+            }
+        },
+        {
+            "series": "Neural Networks (MLP)",
+            "level": 2,
+            "id": "mlp_lvl2_autograd_modules",
+            "algorithm": "MLP (nn.Module + Autograd)",
+            "description": "General MLP classifier with dropout and batchnorm options.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "MNIST (torchvision) or synthetic if offline.",
+                "validation": "Test accuracy threshold documented (e.g., > 0.95 on MNIST with few epochs)."
+            }
+        },
+        {
+            "series": "Neural Networks (MLP)",
+            "level": 3,
+            "id": "mlp_lvl3_training_tricks",
+            "algorithm": "MLP (Schedulers + AMP + Logging)",
+            "description": "Add LR scheduler, mixed precision (if cuda), gradient clipping, checkpointing.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "artifacts": "Save best checkpoint; save training curves.",
+                "validation": "Resume-from-checkpoint reproduces final metrics (tolerance)."
+            }
+        },
+        {
+            "series": "Neural Networks (MLP)",
+            "level": 4,
+            "id": "mlp_lvl4_hparam_sweep",
+            "algorithm": "MLP (Hyperparameter Search)",
+            "description": "Grid/random search over depth/width/lr/weight_decay; select best by val metric.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "output": "Return leaderboard table in outputs['metrics']['sweep'].",
+                "validation": "Best config beats a fixed baseline."
+            }
+        },
+        {
+            "series": "Convolutional Neural Networks",
+            "level": 1,
+            "id": "cnn_lvl1_from_scratch_conv",
+            "algorithm": "CNN (Manual Conv2D, Educational)",
+            "description": "Implement minimal Conv2D forward (im2col or direct) to understand convolution; compare to torch.nn.Conv2d output.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Max abs diff < 1e-4 vs nn.Conv2d on random tensors."
+            }
+        },
+        {
+            "series": "Convolutional Neural Networks",
+            "level": 2,
+            "id": "cnn_lvl2_lenet_mnist",
+            "algorithm": "LeNet on MNIST",
+            "description": "Train LeNet-style CNN with data loaders, augmentation, and evaluation.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "visualization": "Confusion matrix plot saved.",
+                "validation": "Accuracy > 0.98 on MNIST with reasonable epochs."
+            }
+        },
+        {
+            "series": "Convolutional Neural Networks",
+            "level": 3,
+            "id": "cnn_lvl3_resnet_transfer",
+            "algorithm": "Transfer Learning (ResNet)",
+            "description": "Fine-tune pretrained ResNet on CIFAR10 or a small custom dataset; freeze/unfreeze stages.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Transfer learning beats training-from-scratch baseline."
+            }
+        },
+        {
+            "series": "Convolutional Neural Networks",
+            "level": 4,
+            "id": "cnn_lvl4_production_export",
+            "algorithm": "CNN (ONNX Export + Inference Benchmark)",
+            "description": "Export model to ONNX; run inference benchmark; verify numerical parity.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "ONNX outputs close to PyTorch (tolerance).",
+                "benchmark": "Report latency and throughput."
+            }
+        },
+        {
+            "series": "Sequence Models (RNN/LSTM)",
+            "level": 1,
+            "id": "rnn_lvl1_char_rnn",
+            "algorithm": "Char-RNN (From Scratch-ish)",
+            "description": "Simple character-level RNN for next-char prediction.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Perplexity decreases; generate sample text artifact."
+            }
+        },
+        {
+            "series": "Sequence Models (RNN/LSTM)",
+            "level": 2,
+            "id": "rnn_lvl2_lstm_sentiment",
+            "algorithm": "LSTM Sentiment Classification",
+            "description": "Tokenization + embedding + LSTM classifier.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Accuracy reported; include padding/masking correctness tests."
+            }
+        },
+        {
+            "series": "Sequence Models (RNN/LSTM)",
+            "level": 3,
+            "id": "rnn_lvl3_seq2seq_attention",
+            "algorithm": "Seq2Seq + Attention (Toy Translation)",
+            "description": "Implement encoder-decoder with attention on a toy dataset (e.g., reversing sequences).",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Exact match > 0.95 on toy task."
+            }
+        },
+        {
+            "series": "Sequence Models (RNN/LSTM)",
+            "level": 4,
+            "id": "rnn_lvl4_packed_sequence_prod",
+            "algorithm": "RNN (PackedSequence + Efficiency)",
+            "description": "Use packed sequences for variable-length batches; measure speed/memory improvements.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "benchmark": "Compare padded vs packed runtime; save plot."
+            }
+        },
+        {
+            "series": "Transformers",
+            "level": 1,
+            "id": "tfm_lvl1_attention_from_scratch",
+            "algorithm": "Scaled Dot-Product Attention (From Scratch)",
+            "description": "Implement attention forward pass; verify shapes, masking, and numerical stability.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include $\\text{softmax}(QK^T/\\sqrt{d_k})V$.",
+                "validation": "Matches torch.nn.MultiheadAttention on a controlled case (tolerance)."
+            }
+        },
+        {
+            "series": "Transformers",
+            "level": 2,
+            "id": "tfm_lvl2_encoder_classifier",
+            "algorithm": "Transformer Encoder Classifier",
+            "description": "Build a small encoder-only transformer for text classification.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Beats LSTM baseline on the same dataset."
+            }
+        },
+        {
+            "series": "Transformers",
+            "level": 3,
+            "id": "tfm_lvl3_gpt_minilm",
+            "algorithm": "Mini-GPT (Causal LM)",
+            "description": "Train a tiny causal transformer LM; implement causal mask; sample generation.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "artifacts": "Save generated samples to 'samples.txt'.",
+                "validation": "Loss decreases; sampling works without NaNs."
+            }
+        },
+        {
+            "series": "Transformers",
+            "level": 4,
+            "id": "tfm_lvl4_kv_cache_infer",
+            "algorithm": "Transformer (KV Cache Inference)",
+            "description": "Implement KV-cache for faster autoregressive decoding; benchmark speedup.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "benchmark": "Report tokens/sec with and without cache.",
+                "validation": "Cached and non-cached logits match (tolerance)."
+            }
+        },
+        {
+            "series": "Autoencoders",
+            "level": 1,
+            "id": "ae_lvl1_linear_ae",
+            "algorithm": "Linear Autoencoder vs PCA",
+            "description": "Train linear autoencoder and compare reconstruction to PCA.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Reconstruction error close to PCA at same latent dim."
+            }
+        },
+        {
+            "series": "Autoencoders",
+            "level": 2,
+            "id": "ae_lvl2_denoising_ae",
+            "algorithm": "Denoising Autoencoder",
+            "description": "Add noise corruption; denoise MNIST.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "visualization": "Save grid of noisy vs recon vs clean."
+            }
+        },
+        {
+            "series": "Autoencoders",
+            "level": 3,
+            "id": "ae_lvl3_vae",
+            "algorithm": "Variational Autoencoder (VAE)",
+            "description": "Implement VAE with reparameterization trick; KL + recon loss.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include ELBO and KL term in LaTeX.",
+                "validation": "Sample generation works; no posterior collapse warnings documented."
+            }
+        },
+        {
+            "series": "Autoencoders",
+            "level": 4,
+            "id": "ae_lvl4_latent_traversal",
+            "algorithm": "VAE (Latent Traversal + Evaluation)",
+            "description": "Latent interpolation/traversal; compute FID-like proxy or simple diversity metrics.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "artifacts": "Save traversal image grid + metrics."
+            }
+        },
+        {
+            "series": "Generative Adversarial Networks",
+            "level": 1,
+            "id": "gan_lvl1_gan_toy",
+            "algorithm": "GAN on 2D Toy Data",
+            "description": "Basic GAN on 2D Gaussian mixture; visualize generator samples.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Sample distribution approaches target (use MMD or simple stats)."
+            }
+        },
+        {
+            "series": "Generative Adversarial Networks",
+            "level": 2,
+            "id": "gan_lvl2_dcgan_mnist",
+            "algorithm": "DCGAN (MNIST)",
+            "description": "Implement DCGAN with stable training tricks; save sample grids over epochs.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "artifacts": "Save 'samples_epoch_*.png'."
+            }
+        },
+        {
+            "series": "Generative Adversarial Networks",
+            "level": 3,
+            "id": "gan_lvl3_wgan_gp",
+            "algorithm": "WGAN-GP",
+            "description": "Implement Wasserstein GAN with gradient penalty; compare stability vs DCGAN.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Training is stable; critic loss behaves as expected; document failure modes."
+            }
+        },
+        {
+            "series": "Generative Adversarial Networks",
+            "level": 4,
+            "id": "gan_lvl4_eval_and_export",
+            "algorithm": "GAN (Evaluation + Export)",
+            "description": "Add quantitative evaluation + export generator; inference-only script + benchmark.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "benchmark": "Report images/sec generation throughput."
+            }
+        },
+        {
+            "series": "Graph Machine Learning",
+            "level": 1,
+            "id": "gml_lvl1_gcn_nodecls",
+            "algorithm": "GCN (Node Classification)",
+            "description": "Implement basic GCN layer and train on Cora-like citation graph (or synthetic graph if offline).",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "Accuracy reported; adjacency normalization tested."
+            }
+        },
+        {
+            "series": "Graph Machine Learning",
+            "level": 2,
+            "id": "gml_lvl2_graphsage",
+            "algorithm": "GraphSAGE (Mini-batch)",
+            "description": "Neighbor sampling + mini-batch training for scalability.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "benchmark": "Report speed vs full-batch."
+            }
+        },
+        {
+            "series": "Graph Machine Learning",
+            "level": 3,
+            "id": "gml_lvl3_gat",
+            "algorithm": "GAT (Graph Attention)",
+            "description": "Implement GAT layer; compare to GCN.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "GAT >= GCN on same split (tolerance)."
+            }
+        },
+        {
+            "series": "Graph Machine Learning",
+            "level": 4,
+            "id": "gml_lvl4_link_prediction",
+            "algorithm": "Graph Link Prediction",
+            "description": "Train embeddings + decoder; evaluate AUC/AP; negative sampling.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "validation": "AUC/AP reported with deterministic sampling."
+            }
+        }
+    ]
+}
