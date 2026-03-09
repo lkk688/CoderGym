@@ -150,6 +150,39 @@
                 "validation": "ECE decreases after calibration step (compare before/after)."
             }
         },
+        ,
+{
+    "series": "Convolutional Neural Networks",
+    "level": 2,
+    "id": "cnn_lvl2_mnist_label_smoothing",
+    "algorithm": "CNN with Label Smoothing",
+    "description": "Train a CNN on MNIST using label smoothing to improve model calibration and generalization.",
+    "interface_protocol": "pytorch_task_v1"
+},
+{
+    "series": "Convolutional Neural Networks",
+    "level": 3,
+    "id": "cnn_lvl3_cifar10_dropout",
+    "algorithm": "CNN with Dropout",
+    "description": "Train a CNN on CIFAR10 with dropout regularization to reduce overfitting.",
+    "interface_protocol": "pytorch_task_v1"
+},
+{
+    "series": "Sequence Models (RNN/LSTM)",
+    "level": 2,
+    "id": "nlp_lvl1_sentiment_lstm",
+    "algorithm": "LSTM Sentiment Classification",
+    "description": "Build an LSTM-based sentiment classifier using embeddings and sequence modeling.",
+    "interface_protocol": "pytorch_task_v1"
+},
+{
+    "series": "Linear Regression",
+    "level": 1,
+    "id": "reg_lvl1_california_housing",
+    "algorithm": "MLP Regression",
+    "description": "Predict California housing prices using a multilayer perceptron trained on standardized tabular features.",
+    "interface_protocol": "pytorch_task_v1"
+},
         {
             "series": "k-Nearest Neighbors",
             "level": 1,
