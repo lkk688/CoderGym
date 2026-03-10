@@ -839,6 +839,74 @@
             "requirements": {
                 "validation": "AUC/AP reported with deterministic sampling."
             }
+        },
+        {
+            "series": "Contrastive Learning",
+            "level": 1,
+            "id": "contrastive_lvl1_simclr_mnist",
+            "algorithm": "SimCLR Contrastive Learning",
+            "description": "Self-supervised SimCLR on MNIST: two random augmented views per image, NT-Xent loss on projection head embeddings, SGD+momentum optimizer. No labels used during training. Evaluate via frozen kNN probe on encoder representations.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "NT-Xent loss: L = -log(exp(sim(z_i,z_j)/tau) / sum_{k!=i}(exp(sim(z_i,z_k)/tau))). Cosine similarity sim(u,v) = u^T v / (||u|| ||v||).",
+                "data": "MNIST (torchvision). Labels withheld during contrastive training; used only for kNN probe evaluation.",
+                "implementation": "CNN encoder f(x)->h; MLP projection head g(h)->z; NT-Xent loss on z with temperature tau=0.5; two-view augmentation pipeline (random crop, flip, blur).",
+                "evaluation": "Extract frozen encoder features h; fit kNN (k=5, cosine) on train split; report accuracy on test split.",
+                "main_block": "Train SimCLR 20 epochs; evaluate kNN probe; assert kNN accuracy > 0.85 and NT-Xent loss decreased.",
+                "output": "Return dict with knn_probe_accuracy, initial_nt_xent_loss, final_nt_xent_loss, loss_decreased.",
+                "validation": "kNN probe accuracy > 0.85; NT-Xent loss at epoch 20 < loss at epoch 1."
+            }
+        },
+        {
+            "series": "Diffusion Models",
+            "level": 1,
+            "id": "diffusion_lvl1_ddpm_2d",
+            "algorithm": "DDPM Denoising Diffusion",
+            "description": "Implement DDPM on 2D Swiss Roll data: linear noise schedule, epsilon-prediction MLP with sinusoidal time embeddings, forward q(x_t|x_0) sampling, reverse p_theta(x_{t-1}|x_t) denoising chain. Generate samples and compare statistics to training distribution.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Forward: q(x_t|x_0)=N(x_t; sqrt(alpha_bar_t)*x_0, (1-alpha_bar_t)*I). Training: L=E[||eps - eps_theta(x_t,t)||^2]. Reverse: x_{t-1} = (1/sqrt(alpha_t))*(x_t - beta_t/sqrt(1-alpha_bar_t)*eps_theta) + sigma_t*z.",
+                "data": "Synthetic 2D Swiss Roll (sklearn.datasets.make_swiss_roll); project to 2D (dims 0,2); standardise to zero mean unit variance.",
+                "implementation": "Linear beta schedule beta_1=1e-4 to beta_T=0.02, T=500; MLP noise predictor with sinusoidal time embeddings; Adam optimizer with cosine LR schedule.",
+                "evaluation": "Run full reverse chain from x_T~N(0,I) for N=500 samples; compute sample mean and std; compare to training data stats.",
+                "main_block": "Train 80 epochs; generate samples; assert denoising loss decreased; assert sample mean error < 0.5 and sample std error < 0.5.",
+                "output": "Return dict with final_loss, initial_loss, loss_decreased, sample_mean_error, sample_std_error.",
+                "validation": "Denoising loss decreases monotonically overall; generated sample mean within 0.5 of training mean; generated sample std within 0.5 of training std."
+            }
+        },
+        {
+            "series": "Temporal Convolutional Networks",
+            "level": 1,
+            "id": "tcn_lvl1_sequence_cls",
+            "algorithm": "TCN Sequence Classification",
+            "description": "Implement a TCN with dilated causal convolutions and residual blocks for 4-class synthetic time series classification. Each class is a sinusoid at a distinct frequency (1,2,4,8 Hz) with Gaussian noise. Dilation doubles per layer: d=1,2,4,8.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Dilated causal conv: y[t] = sum_{k=0}^{K-1} w[k]*x[t-d*k] with d=2^layer. Receptive field: 1 + (K-1)*sum_{l=0}^{L-1}(2^l).",
+                "data": "Synthetic 4-class sinusoidal time series (seq_len=128); 500 samples/class; 80/20 train/val split.",
+                "implementation": "CausalConv1d (left-pad only); ResidualTCNBlock with two dilated convs + BN + ReLU + skip; 4 layers with dilation 1,2,4,8; GlobalAvgPool -> Linear head.",
+                "evaluation": "CrossEntropyLoss; accuracy on val set; classification report per class.",
+                "main_block": "Train 50 epochs; evaluate; assert val accuracy > 0.85; assert val loss < 0.5; assert train loss decreased.",
+                "output": "Return dict with train_accuracy, val_accuracy, train_loss, val_loss, loss histories.",
+                "validation": "Val accuracy > 0.85; train loss at epoch 50 < loss at epoch 1; val loss < 0.5."
+            }
+        },
+        {
+            "series": "Knowledge Distillation",
+            "level": 1,
+            "id": "distillation_lvl1_kd_mnist",
+            "algorithm": "Knowledge Distillation (Hinton et al.)",
+            "description": "Train a large TeacherCNN on MNIST, then distill into a StudentCNN (>5x fewer parameters) using soft targets via KL divergence with temperature scaling. Student must match teacher accuracy within 3% despite a 5x+ parameter reduction.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Soft targets: p_T(x;T)=softmax(z_teacher/T). Distillation loss: L_KD=T^2*KL(p_T||p_S). Total: L=(1-alpha)*CE(y,p_S)+alpha*L_KD.",
+                "data": "MNIST (torchvision). Standard train/test split with normalisation.",
+                "implementation": "TeacherCNN: 3 conv blocks + FC (~200k params). StudentCNN: 2 conv blocks + FC (~20k params, param_ratio>5). Temperature T=4.0; alpha=0.7. Train teacher with CE first; freeze teacher; train student with combined distillation+CE loss.",
+                "evaluation": "Report teacher accuracy, student accuracy, accuracy gap, parameter ratio.",
+                "main_block": "Train teacher 15 epochs; train student 15 epochs with distillation; assert teacher accuracy > 0.99; assert student accuracy > 0.95; assert accuracy gap < 0.03; assert param_ratio > 5.",
+                "output": "Return dict with teacher_accuracy, student_accuracy, teacher_params, student_params, param_ratio.",
+                "validation": "Teacher accuracy > 0.99; student accuracy > 0.95; accuracy gap < 0.03; teacher_params / student_params > 5."
+            }
         }
     ]
 }
