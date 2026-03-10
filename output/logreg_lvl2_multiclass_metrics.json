@@ -1,0 +1,19 @@
+{
+  "train": {
+    "loss": 0.0006037681174348109,
+    "accuracy": 1.0,
+    "f1_macro": 1.0
+  },
+  "validation": {
+    "loss": 0.001843012892225358,
+    "accuracy": 1.0,
+    "f1_macro": 1.0
+  },
+  "metadata": {
+    "task_name": "softmax_regression_multiclass",
+    "task_type": "classification",
+    "num_classes": 3,
+    "input_dim": 2,
+    "description": "Multiclass softmax regression using torch.nn.Module + CrossEntropyLoss"
+  }
+}

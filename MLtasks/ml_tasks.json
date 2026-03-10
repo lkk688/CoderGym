@@ -93,6 +93,36 @@
             }
         },
         {
+            "series": "Linear Regression",
+            "level": 5,
+            "id": "linreg_lvl5_diabetes_adamw",
+            "algorithm": "Linear Regression (Diabetes + AdamW)",
+            "description": "Apply linear regression to sklearn diabetes dataset with AdamW optimizer and LR scheduling.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Use sklearn.datasets.load_diabetes; standardized features and train/validation split.",
+                "implementation": "PyTorch nn.Linear with AdamW + ReduceLROnPlateau.",
+                "evaluation": "evaluate() must return MSE, R2, MAE on validation split.",
+                "validation": "Assert quality thresholds for R2, MSE, and train/val generalization gap.",
+                "artifacts": "Save model.pt, history.npz, and metrics.json."
+            }
+        },
+        {
+            "series": "Linear Regression",
+            "level": 6,
+            "id": "linreg_lvl6_huber_earlystop",
+            "algorithm": "Robust Linear Regression (Huber + Early Stopping)",
+            "description": "Train linear regression on outlier-corrupted synthetic data using Huber loss, gradient clipping, and early stopping.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Synthetic multivariate regression with injected outliers.",
+                "implementation": "PyTorch nn.Linear with HuberLoss, Adam, gradient clipping, and early stopping on validation loss.",
+                "evaluation": "evaluate() must return MSE, R2, MAE on validation split.",
+                "validation": "Assert robust performance thresholds and overfitting guardrails.",
+                "artifacts": "Save model.pt, history.npz, and metrics.json."
+            }
+        },
+        {
             "series": "Logistic Regression",
             "level": 1,
             "id": "logreg_lvl1_binary_raw",
@@ -148,6 +178,36 @@
                 "implementation": "Compute ECE (Expected Calibration Error) manually; optimize threshold for F1.",
                 "visualization": "Reliability diagram + ROC curve.",
                 "validation": "ECE decreases after calibration step (compare before/after)."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 5,
+            "id": "logreg_lvl5_breast_cancer_l1",
+            "algorithm": "Logistic Regression (Breast Cancer + L1)",
+            "description": "Binary logistic regression on breast cancer data with BCEWithLogits and L1 regularization.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Use sklearn.datasets.load_breast_cancer with standardized features.",
+                "implementation": "PyTorch linear logits model, BCEWithLogitsLoss, and L1 penalty term.",
+                "evaluation": "evaluate() must include MSE, R2, accuracy, F1, precision, recall, and ROC-AUC on validation.",
+                "validation": "Assert accuracy/F1/AUC thresholds and train/val gap constraints.",
+                "artifacts": "Save model.pt, history.npz, and metrics.json."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 6,
+            "id": "logreg_lvl6_iris_label_smoothing",
+            "algorithm": "Softmax Logistic Regression (Iris + Label Smoothing)",
+            "description": "Multiclass logistic regression on Iris with label smoothing and cosine LR scheduler.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Use sklearn.datasets.load_iris with standardized features and train/validation split.",
+                "implementation": "PyTorch linear multiclass model, CrossEntropyLoss(label_smoothing), Adam + CosineAnnealingLR.",
+                "evaluation": "evaluate() must include MSE, R2, accuracy, macro-F1, and CE loss on validation.",
+                "validation": "Assert macro-F1/accuracy thresholds and loss convergence checks.",
+                "artifacts": "Save model.pt, history.npz, and metrics.json."
             }
         },
         {
