@@ -326,7 +326,7 @@ def build_model(input_dim=10, device=None):
 
 def train(model, train_loader, val_loader, epochs=100):
     """Train model with LR scheduling."""
-    model.fit(train_loader, val_loader, epochs=epochs, lr_max=0.1, 
+    model.fit(train_loader, val_loader, epochs=epochs, lr_max=0.01, 
               warmup_epochs=10, clip_grad_norm=1.0, verbose=True)
     return model
 
