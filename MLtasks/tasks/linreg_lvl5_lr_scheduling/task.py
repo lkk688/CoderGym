@@ -326,7 +326,7 @@ def build_model(input_dim=10, device=None):
 
 def train(model, train_loader, val_loader, epochs=100):
     """Train model with LR scheduling."""
-    model.fit(train_loader, val_loader, epochs=epochs, lr_max=0.001, 
+    model.fit(train_loader, val_loader, epochs=epochs, lr_max=0.003, 
               warmup_epochs=10, clip_grad_norm=1.0, verbose=True)
     return model
 
@@ -458,7 +458,7 @@ if __name__ == '__main__':
     print(f"{'=' * 70}")
     
     model = build_model(input_dim=10, device=device)
-    model = train(model, train_loader, val_loader, epochs=100)
+    model = train(model, train_loader, val_loader, epochs=200)
     
     print("\nModel training complete!")
     
