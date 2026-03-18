@@ -109,6 +109,20 @@
         {
             "series": "Logistic Regression",
             "level": 2,
+            "id": "logreg_lvl2_imbalanced_posweight_raw",
+            "algorithm": "Logistic Regression (Binary, Raw Tensors, Imbalanced + Positive Class Weighting)",
+            "description": "Implement Binary Logistic Regression using only raw PyTorch tensors with manual sigmoid, manual weighted BCE gradients, and manual gradient descent. Use an imbalanced synthetic dataset and handle class imbalance with positive class weighting.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "sigmoid(z) = 1 / (1 + e^(-z)) and the weighted binary cross entropy loss formula L = -mean(pos_weight * y * log(p) + (1-y) * log(1-p)).",
+                "data": "Synthetic imbalanced binary classification dataset with two Gaussian clusters in 2D. Majority class centered at (-1, -1), minority class centered at (1, 1).",
+                "implementation": "Manual parameter tensors for weights and bias, manual sigmoid, manual weighted BCE gradient computation, and manual gradient descent updates.",
+                "validation": "Assert balanced_accuracy > 0.85 and F1 > 0.70 on validation."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 2,
             "id": "logreg_lvl2_multiclass_softmax",
             "algorithm": "Softmax Regression (Multiclass)",
             "description": "Multiclass softmax regression using torch.nn.Module + CrossEntropyLoss.",
