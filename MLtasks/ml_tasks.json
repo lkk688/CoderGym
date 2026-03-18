@@ -61,6 +61,22 @@
     },
     {
       "series": "Linear Regression",
+      "level": 2,
+      "id": "linreg_lvl2_raw_momentum_earlystop",
+      "algorithm": "Linear Regression (Raw Tensors + Momentum + Early Stopping)",
+      "description": "Implement Univariate Linear Regression using ONLY raw PyTorch tensors, with manual gradients, momentum-based gradient descent, learning rate decay, and early stopping.",
+      "interface_protocol": "pytorch_task_v1",
+      "requirements": {
+        "math": "Include h_theta(x) = theta_0 + theta_1*x, the MSE cost function, and the momentum update equations in LaTeX.",
+        "data": "Synthetic: y = 2x + 3 + noise. Split into 80% train / 20% validation.",
+        "implementation": "Manual gradients only. No torch.nn modules, no torch.optim, and no autograd. Add momentum, learning rate decay, and early stopping based on validation loss.",
+        "evaluation": "The evaluate() function must compute MSE, R2 score, and parameter accuracy on the validation split.",
+        "visualization": "Save a training/validation loss curve and a learning rate decay plot.",
+        "validation": "Assert validation R2 > 0.90, parameter errors are small, training loss decreases, and validation loss improves overall."
+      }
+    },
+    {
+      "series": "Linear Regression",
       "level": 3,
       "id": "linreg_lvl3_diabetes_autograd",
       "algorithm": "Linear Regression (Autograd on Diabetes Dataset)",
