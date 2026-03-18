@@ -152,6 +152,22 @@
     {
       "series": "Logistic Regression",
       "level": 3,
+      "id": "logreg_lvl3_softmax_sgd_scheduler",
+      "algorithm": "Softmax Regression (Multiclass, SGD + Momentum + StepLR)",
+      "description": "Implement multiclass softmax regression using torch.nn.Module and CrossEntropyLoss on synthetic 3-class data, trained with SGD + momentum and a StepLR learning rate scheduler.",
+      "interface_protocol": "pytorch_task_v1",
+      "requirements": {
+        "math": "Include the softmax function and multiclass cross-entropy loss in LaTeX.",
+        "data": "Use sklearn.datasets.make_blobs to generate 3-class synthetic 2D data with train/validation split.",
+        "implementation": "Use torch.nn.Linear for multiclass logits, CrossEntropyLoss, SGD with momentum, and StepLR scheduling. Training must be device agnostic.",
+        "evaluation": "Report loss, accuracy, and macro F1 on both training and validation splits.",
+        "visualization": "Save training vs validation loss and accuracy plots.",
+        "validation": "Assert validation accuracy > 0.78 and macro F1 > 0.78, verify training loss decreases, and ensure the train/validation accuracy gap is below 0.15."
+      }
+    },
+    {
+      "series": "Logistic Regression",
+      "level": 3,
       "id": "logreg_lvl3_imbalanced_metrics",
       "algorithm": "Logistic Regression (Imbalanced + Metrics)",
       "description": "Imbalanced binary classification with weighted loss + early stopping; manual metrics.",
