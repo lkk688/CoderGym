@@ -141,6 +141,22 @@
     {
       "series": "Logistic Regression",
       "level": 1,
+      "id": "logreg_bigquery_shakespeare",
+      "algorithm": "Logistic Regression (BigQuery Shakespeare Binary Classification)",
+      "description": "Load Shakespeare word data from Google BigQuery and train a PyTorch logistic regression model to classify whether a row comes from Hamlet or Romeo and Juliet using SQL-engineered lexical features.",
+      "interface_protocol": "pytorch_task_v1",
+      "requirements": {
+        "data": "Load a real dataset from Google BigQuery using the BigQuery Python client. Use the public Shakespeare table with SQL-based feature engineering and corpus-based label creation.",
+        "implementation": "Use PyTorch logistic regression for a complete workflow: BigQuery query -> dataframe -> preprocessing -> train/validation split -> training -> evaluation.",
+        "bigquery": "Clearly show BigQuery client creation, SQL query execution, and dataframe loading from BigQuery.",
+        "evaluation": "Report classification metrics such as loss, accuracy, precision, recall, and F1 on train and validation splits.",
+        "visualization": "Save a training vs validation loss plot.",
+        "validation": "Assert validation accuracy and F1 exceed reasonable thresholds for the sampled BigQuery dataset and verify training loss decreases."
+      }
+    },
+    {
+      "series": "Logistic Regression",
+      "level": 1,
       "id": "logreg_lvl1_binary_raw",
       "algorithm": "Logistic Regression (Binary, Raw Tensors)",
       "description": "Binary logistic regression with manual sigmoid and manual gradients (no autograd).",
