@@ -31,6 +31,22 @@
     {
       "series": "Linear Regression",
       "level": 1,
+      "id": "linreg_bigquery_natality",
+      "algorithm": "Linear Regression (BigQuery Natality Dataset)",
+      "description": "Load natality data from Google BigQuery and train a PyTorch linear regression model to predict birth weight from maternal and pregnancy features.",
+      "interface_protocol": "pytorch_task_v1",
+      "requirements": {
+        "data": "Load a real dataset from Google BigQuery using the BigQuery Python client. Use the public natality table with SQL-based filtering and sampling.",
+        "implementation": "Use PyTorch linear regression for a complete workflow: BigQuery query -> dataframe -> preprocessing -> train/validation split -> training -> evaluation.",
+        "bigquery": "Clearly show BigQuery client creation, SQL query execution, and dataframe loading from BigQuery.",
+        "evaluation": "Report regression metrics such as loss, MSE, MAE, and R2 on train and validation splits.",
+        "visualization": "Save a training vs validation loss plot.",
+        "validation": "Assert validation R2 exceeds a reasonable threshold for the sampled BigQuery dataset and verify training loss decreases."
+      }
+    },
+    {
+      "series": "Linear Regression",
+      "level": 1,
       "id": "linreg_lvl1_raw_tensors",
       "algorithm": "Linear Regression (Raw Tensors)",
       "description": "Implement Univariate Linear Regression using ONLY PyTorch tensors. Do NOT use torch.nn, torch.optim, or autograd. Write everything in a single task.py file with a complete main() that trains, evaluates, and validates.",
