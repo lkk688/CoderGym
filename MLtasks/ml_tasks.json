@@ -839,6 +839,74 @@
             "requirements": {
                 "validation": "AUC/AP reported with deterministic sampling."
             }
+        },
+        {
+            "series": "Ridge Regression",
+            "level": 1,
+            "id": "ridge_lvl1_cv_hyperparam",
+            "algorithm": "Ridge Regression with K-Fold Cross-Validation",
+            "description": "Implement Ridge Regression with manual k-fold cross-validation for hyperparameter tuning. Select optimal lambda via CV, then train final model and compare against baseline.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Ridge objective: J(theta) = (1/2m) * ||X @ theta - y||^2 + lambda * ||theta||^2. Closed-form: theta = (X^T X + lambda * I)^{-1} X^T y",
+                "data": "California Housing dataset from sklearn. 80/10/10 split for train/val/test.",
+                "implementation": "Implement k-fold CV from scratch (no sklearn GridSearchCV). Test lambda values: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]. Use closed-form solution.",
+                "evaluation": "Report MSE, R2, and best lambda. Compare train vs val vs test metrics. Plot CV scores vs lambda.",
+                "validation": "Assert test R2 > 0.7, test MSE < 1.0, no severe overfitting (train-test R2 diff < 0.15).",
+                "visualization": "Save 'cv_lambda_selection.png' (CV score vs lambda) and 'metrics_comparison.png' (train/val/test bars).",
+                "output": "Return dict with cv_results, best_lambda, and final metrics."
+            }
+        },
+        {
+            "series": "Elastic Net",
+            "level": 1,
+            "id": "elasticnet_lvl1_wine_quality",
+            "algorithm": "Elastic Net Regression on Wine Quality Dataset",
+            "description": "Implement Elastic Net (L1 + L2 regularization) using gradient descent with soft thresholding. Apply to Wine Quality dataset and analyze feature sparsity.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Elastic Net objective: J(theta) = MSE + lambda1 * ||theta||_1 + lambda2 * ||theta||^2. Use proximal gradient descent with soft thresholding for L1.",
+                "data": "Wine Quality dataset (red wine) from UCI ML Repository. 11 features predicting quality score. If download fails, generate synthetic wine-like data.",
+                "implementation": "Manual gradient descent with soft thresholding operator: soft_threshold(x, t) = sign(x) * max(|x| - t, 0). Set lambda1=0.005, lambda2=0.01.",
+                "evaluation": "Report MSE, R2, sparsity ratio (proportion of near-zero coefficients), and number of active features.",
+                "validation": "Assert test R2 > 0.5, sparsity > 0.1, test MSE < 1.5, at least 3 active features.",
+                "visualization": "Save 'training_and_features.png' (loss curve + feature importance bar chart) and 'metrics_comparison.png'.",
+                "output": "Return dict with metrics, sparsity_ratio, feature_importance, and training_history."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 5,
+            "id": "logreg_lvl5_fashion_momentum",
+            "algorithm": "Logistic Regression with SGD + Momentum on Fashion-MNIST",
+            "description": "Implement multiclass logistic regression with three optimizer variants: vanilla SGD, SGD with momentum, and Nesterov momentum. Compare convergence speed and final accuracy on Fashion-MNIST.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Softmax: P(y=k|x) = exp(W_k @ x) / sum(exp(W_j @ x)). Cross-entropy loss. Momentum: v_t = beta * v_{t-1} + grad; theta_t = theta_{t-1} - lr * v_t. Nesterov: look-ahead gradient.",
+                "data": "Fashion-MNIST: 60k train (split 80/20 train/val), 10k test. 10 clothing categories. Flatten 28x28 images to 784-dim vectors. Normalize to [-1, 1].",
+                "implementation": "Custom nn.Module with manual momentum update. Implement three training loops: vanilla SGD (momentum=0), standard momentum (beta=0.9), and Nesterov momentum. Train each for 10 epochs with lr=0.1.",
+                "evaluation": "Report accuracy, macro-F1, per-class accuracy, and confusion matrix for each optimizer. Compare final test metrics and convergence curves.",
+                "validation": "Assert Nesterov test accuracy > 0.80, macro-F1 > 0.75, momentum methods converge better than vanilla (lower val loss), mean per-class accuracy > 0.75.",
+                "visualization": "Save 'optimizer_comparison.png' (4 subplots: train loss, val loss, train acc, val acc for all 3 optimizers) and 'confusion_matrix.png' (Nesterov).",
+                "output": "Return dict with histories (per optimizer), test_metrics_dict, and comparison summary."
+            }
+        },
+        {
+            "series": "Linear Regression",
+            "level": 5,
+            "id": "linreg_lvl5_lr_scheduling",
+            "algorithm": "Linear Regression with Learning Rate Scheduling (Warmup + Cosine Annealing)",
+            "description": "Implement linear regression with advanced learning rate scheduling: linear warmup followed by cosine annealing. Demonstrate improved training dynamics on Diabetes dataset.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "MSE loss: J(theta) = (1/2m) * ||X @ theta - y||^2. Warmup: lr_t = lr_max * (t / warmup_steps) for t < warmup_steps. Cosine annealing: lr_t = lr_min + 0.5 * (lr_max - lr_min) * (1 + cos(pi * progress)).",
+                "data": "Diabetes dataset from sklearn: 442 samples, 10 features (age, sex, bmi, blood pressure, blood serum measurements). 64/16/20 split for train/val/test.",
+                "implementation": "Custom LRScheduler class with warmup and cosine annealing. Use mini-batch GD with gradient clipping (norm <= 1.0). Train for 100 epochs with lr_max=0.1, warmup_epochs=10, batch_size=32.",
+                "evaluation": "Report MSE, RMSE, R2 for train/val/test. Track loss and LR per epoch and per step.",
+                "validation": "Assert test R2 > 0.4, test MSE < 4000, training loss decreased from start to end, LR schedule correct (warmup increases, then cosine decay).",
+                "visualization": "Save 'training_dynamics.png' with 4 subplots: (1) train/val loss curves, (2) LR schedule per epoch, (3) detailed LR per step, (4) final metrics comparison bar chart.",
+                "output": "Return dict with train_history (loss, val_loss, lr, lr_full), final_metrics, and lr_schedule_info."
+            }
         }
     ]
 }
