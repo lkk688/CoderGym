@@ -899,6 +899,81 @@
             "requirements": {
                 "validation": "AUC/AP reported with deterministic sampling."
             }
+        },
+        {
+            "series": "Neural Networks (MLP)",
+            "level": 5,
+            "id": "mlp_lvl5_ensemble_distillation",
+            "algorithm": "Knowledge Distillation (Ensemble Teacher)",
+            "description": "Train ensemble of teachers on MNIST; distill into single compact student model with temperature scaling.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include KL divergence-based distillation loss: L = alpha*CE(student, target) + (1-alpha)*KL(softmax(student/T), softmax(teacher/T))",
+                "data": "MNIST dataset; 80/20 train/validation split.",
+                "implementation": "Train 3 teacher MLPs independently; average their logits; train student with distillation loss at T=4; use Adam optimizer.",
+                "teacher_ensemble": "Each teacher: 256x128x10 architecture; trained to >98% accuracy.",
+                "student": "Compact model: 128x64x10 architecture; should match ensemble accuracy with 50% fewer parameters.",
+                "evaluation": "evaluate() must compute MSE, CE loss, accuracy, and distillation efficiency (student_params / teacher_params ratio) on validation split.",
+                "main_block": "Train teachers, create ensemble, train student, evaluate student vs ensemble accuracy, assert student_accuracy > 0.95 and student achieves >90% of ensemble performance.",
+                "artifacts": "Save teacher models, student model, training history, and comparison metrics."
+            }
+        },
+        {
+            "series": "Convolutional Neural Networks",
+            "level": 5,
+            "id": "cnn_lvl5_attention_mechanisms",
+            "algorithm": "CNN with Squeeze-Excitation Attention",
+            "description": "Implement and evaluate SE-Net (Squeeze-Excitation) attention modules on CIFAR-10 or MNIST.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include SE module formula: x * sigmoid(FC2(ReLU(FC1(GlobalAvgPool(x)))); explain channel attention.",
+                "architecture": "Build ResNet-18 style backbone with SE blocks after each residual block.",
+                "data": "CIFAR-10 or MNIST; normalized; 80/20 train/validation split.",
+                "implementation": "Implement SEBlock as nn.Module; integrate into CNN; compare baseline vs attention-enhanced.",
+                "comparison": "Train both with and without SE modules; report parameter count and accuracy difference.",
+                "evaluation": "evaluate() must compute accuracy, CE loss, and per-channel attention weights on validation split.",
+                "main_block": "Train both models, evaluate both splits, print architecture comparisons, assert attention model >= baseline accuracy.",
+                "visualization": "Save attention weight heatmaps on sample images.",
+                "artifacts": "Save both models, attention visualizations, and training curves."
+            }
+        },
+        {
+            "series": "Natural Language Processing",
+            "level": 1,
+            "id": "nlp_lvl1_text_embedding",
+            "algorithm": "Word Embeddings (Word2Vec Skip-gram Simplified)",
+            "description": "Implement simplified Skip-gram word embeddings on a small corpus; build sentiment classifier on top.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include Skip-gram objective: log p(context|target) = log sigmoid(context.dot(target)) for positive pairs + negative sampling.",
+                "corpus": "Use small movie reviews corpus (toy dataset or sklearn 20newsgroups subset); build vocabulary of ~5k words.",
+                "embedding_training": "Train 100-dim embeddings with negative sampling; 10 negative samples per positive; SGD with momentum.",
+                "downstream_task": "Train simple logistic regression classifier on embedding representations for sentiment prediction (IMDB-like toy task).",
+                "embedding_eval": "Check that similar words have similar vectors; report top-5 similar words for 'good', 'bad', 'movie'.",
+                "evaluation": "evaluate() must compute sentiment classification accuracy, embedding similarity metrics (cosine), and word analogy performance on validation split.",
+                "main_block": "Train embeddings, verify similarity, train sentiment classifier, evaluate both, assert embeddings capture semantic meaning and classifier accuracy > 0.75.",
+                "artifacts": "Save learned embeddings, vocabulary, and sentiment model."
+            }
+        },
+        {
+            "series": "Robust Neural Networks",
+            "level": 1,
+            "id": "robust_lvl1_adversarial_training",
+            "algorithm": "Adversarial Robustness (FGSM Attacks & Defense)",
+            "description": "Implement FGSM attack and adversarial training to improve model robustness on MNIST.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include FGSM perturbation: x_adv = x + eps * sign(grad_x(L(x,y))); explain adversarial loss mix.",
+                "attack_method": "Fast Gradient Sign Method (FGSM) with epsilon=0.3 (8/255 normalized for MNIST).",
+                "baseline_model": "Train standard CNN without adversarial robustness; measure clean and adversarial accuracy.",
+                "defense_training": "Adversarial training: 80% clean samples + 20% FGSM-attacked samples; lambda_adv=0.5 in loss.",
+                "robust_model": "Train robust model for same epochs; compare to baseline.",
+                "evaluation": "evaluate() must compute: clean_accuracy, robust_accuracy (under FGSM), accuracy_drop, and robustness_gap on validation split.",
+                "internal_testing": "Verify gradient computation for attacks; test perturbation bounds.",
+                "main_block": "Train baseline, evaluate clean+adversarial, train robust model, compare robustness, assert robust_accuracy > baseline_robust_accuracy and clean_accuracy > 0.95.",
+                "visualization": "Save corrupted image examples showing FGSM perturbations.",
+                "artifacts": "Save both models, perturbation examples, and robustness report."
+            }
         }
     ]
 }
