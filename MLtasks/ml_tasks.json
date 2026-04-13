@@ -709,6 +709,17 @@
       }
     },
     {
+      "series": "Convolutional Neural Networks",
+      "level": 1,
+      "id": "cnn_rgb_image_classification",
+      "algorithm": "CNN",
+      "description": "Implement PyTorch CNN trained on syntethic rgb image dataset with class specific color patterns.",
+      "interface_protocol": "pytorch_task_v1",
+      "requirements": {
+        "validation": "Training accuracy >= 0.95, validation accuracy >= 0.90, and validation loss <= 0.40."
+      }
+    },
+    {
       "series": "Sequence Models (RNN/LSTM)",
       "level": 1,
       "id": "rnn_lvl1_char_rnn",
