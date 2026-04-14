@@ -710,6 +710,17 @@
     },
     {
       "series": "Convolutional Neural Networks",
+      "level": 3,
+      "id": "cnn_resnet_transfer_svhn",
+      "algorithm": "Transfer Learning (ResNet)",
+      "description": "Fine-tune pretrained ResNet on the SVHN RGB digit dataset using frozen-backbone training followed by full-network fine-tuning.",
+      "interface_protocol": "pytorch_task_v1",
+      "requirements": {
+        "validation": "Validation accuracy >= 0.80, test accuracy >= 0.80, validation loss <= 0.80"
+      }
+    },
+    {
+      "series": "Convolutional Neural Networks",
       "level": 1,
       "id": "cnn_rgb_image_classification",
       "algorithm": "CNN",
