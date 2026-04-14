@@ -786,6 +786,17 @@
       }
     },
     {
+      "series": "Recurrent Neural Networks",
+      "level": 4,
+      "id": "rnn_packed_anomaly_classification",
+      "algorithm": "RNN (PackedSequence Anomaly Classification)",
+      "description": "Classify variable-length sequences as normal or anomalous using an LSTM with PackedSequence and compare performance against a padded baseline.",
+      "interface_protocol": "pytorch_task_v1",
+      "requirements": {
+        "validation": "Training accuracy >= 0.90, validation accuracy >= 0.85, validation F1 >= 0.85, loss decreases over epochs, and no severe overfitting (train/val gap < 0.10)."
+      }
+    },
+    {
       "series": "Transformers",
       "level": 1,
       "id": "tfm_lvl1_attention_from_scratch",
