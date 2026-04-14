@@ -732,6 +732,17 @@
     },
     {
       "series": "Sequence Models (RNN/LSTM)",
+      "level": 2,
+      "id": "rnn_lstm_sentiment_multiclass",
+      "algorithm": "LSTM Multiclass Sentiment Classification",
+      "description": "Train an LSTM model to classify text into negative, neutral, or positive sentiment using CrossEntropyLoss and multi-class logits.",
+      "interface_protocol": "pytorch_task_v1",
+      "requirements": {
+        "validation": "Validation accuracy >= 0.80 and validation F1 >= 0.75 for 3-class sentiment classification."
+      }
+    },
+    {
+      "series": "Sequence Models (RNN/LSTM)",
       "level": 1,
       "id": "rnn_lvl1_char_rnn",
       "algorithm": "Char-RNN (From Scratch-ish)",
