@@ -1,5 +1,3 @@
-# text_classification_pipelines.py
-
 import time
 import numpy as np
 import pandas as pd
@@ -230,3 +228,70 @@ print(
         y_test, y_pred, target_names=label_encoder.classes_, zero_division=0
     )
 )
+
+
+# display the results table sorted by F1 Score
+results_df = pd.DataFrame(results)
+results_df = results_df.sort_values(by="F1-Score", ascending=False)
+print("\nFinal Comparison:")
+print(results_df)
+
+# save results to a file
+results_df.to_csv("results/model_comparison_results.csv", index=False)
+
+
+### Create Visualizations
+
+# compare accuracy metric of each pipeline
+plt.figure(figsize=(10, 6))
+plt.bar(results_df["Pipeline"], results_df["Accuracy"])
+plt.title("Model Accuracy Comparison")
+plt.xlabel("Pipeline")
+plt.ylabel("Accuracy")
+plt.xticks(rotation=30, ha="right")
+plt.tight_layout()
+plt.savefig("graphics/accuracy_comparison.png")
+plt.show()
+
+# compare F1 Score of each pipeline
+plt.figure(figsize=(10, 6))
+plt.bar(results_df["Pipeline"], results_df["F1-Score"])
+plt.title("Model F1-Score Comparison")
+plt.xlabel("Pipeline")
+plt.ylabel("Weighted F1-Score")
+plt.xticks(rotation=30, ha="right")
+plt.tight_layout()
+plt.savefig("graphics/f1_comparison.png")
+plt.show()
+
+# compare the time it took to train the model of each pipeline
+plt.figure(figsize=(10, 6))
+plt.bar(results_df["Pipeline"], results_df["Training Time (s)"])
+plt.title("Training Time Comparison")
+plt.xlabel("Pipeline")
+plt.ylabel("Training Time in Seconds")
+plt.xticks(rotation=30, ha="right")
+plt.tight_layout()
+plt.savefig("graphics/training_time_comparison.png")
+plt.show()
+
+# compare training time and f1-score for each pipeline
+plt.figure(figsize=(10, 6))
+plt.scatter(results_df["Training Time (s)"], results_df["F1-Score"], s=120)
+
+for i, row in results_df.iterrows():
+    plt.annotate(
+        row["Pipeline"],
+        (row["Training Time (s)"], row["F1-Score"]),
+        textcoords="offset points",
+        xytext=(5, 5),
+    )
+
+plt.title("Performance vs Computational Cost")
+plt.xlabel("Training Time in Seconds")
+plt.ylabel("Weighted F1-Score")
+plt.tight_layout()
+plt.savefig("graphics/performance_vs_speed.png")
+plt.show()
+
+print("\nDone\n")
