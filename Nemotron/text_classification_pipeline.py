@@ -93,3 +93,140 @@ def evaluate_model(name, model, X_train, X_test, y_train, y_test):
             y_test, y_pred, target_names=label_encoder.classes_, zero_division=0
         )
     )
+
+
+### Pipeline 1: TF-IDF + Naive Bayes
+pipeline_nb = Pipeline(
+    [
+        (
+            "tfidf",
+            TfidfVectorizer(
+                max_features=10000, stop_words="english", ngram_range=(1, 2)
+            ),
+        ),
+        ("classifier", MultinomialNB()),
+    ]
+)  # create pipeline using TF-IDF Vectorization and Naive Bayes Classifier and evaluate the model
+evaluate_model("TF-IDF + Naive Bayes", pipeline_nb, X_train, X_test, y_train, y_test)
+
+
+### Pipeline 2: TF-IDF + SVM
+pipeline_svm = Pipeline(
+    [
+        (
+            "tfidf",
+            TfidfVectorizer(
+                max_features=10000, stop_words="english", ngram_range=(1, 2)
+            ),
+        ),
+        ("classifier", LinearSVC()),
+    ]
+)  # create pipeline using TF-IDF Vectorization and Linear SVM Classifier and evaluate the model
+evaluate_model("TF-IDF + Linear SVM", pipeline_svm, X_train, X_test, y_train, y_test)
+
+
+### Pipeline 3: TF-IDF + Random Forest
+pipeline_rf = Pipeline(
+    [
+        (
+            "tfidf",
+            TfidfVectorizer(
+                max_features=5000, stop_words="english", ngram_range=(1, 2)
+            ),
+        ),
+        (
+            "classifier",
+            RandomForestClassifier(n_estimators=150, random_state=42, n_jobs=-1),
+        ),
+    ]
+)  # create pipeline using TF-IDF Vectorization and a Random Forest Classifier and evaluate the model
+evaluate_model("TF-IDF + Random Forest", pipeline_rf, X_train, X_test, y_train, y_test)
+
+
+### Pipeline 4: Word Embeddings + Neural Network
+def tokenize(text):
+    # helper function to turn text into tokens (words)
+    return str(text).lower().split()
+
+
+# tokenize training and testing datasets
+tokenized_train = [tokenize(text) for text in X_train]
+tokenized_test = [tokenize(text) for text in X_test]
+
+# Create word embeddings and get vectors for all the tokens
+start_w2v = time.time()
+w2v_model = Word2Vec(
+    sentences=tokenized_train, vector_size=100, window=5, min_count=1, workers=4, sg=1
+)
+w2v_train_time = time.time() - start_w2v
+
+
+# helper function to average all the vectors into one to represent the entire text
+def document_vector(tokens, model, vector_size=100):
+    vectors = []
+
+    for token in tokens:
+        if token in model.wv:
+            vectors.append(model.wv[token])
+
+    if len(vectors) == 0:
+        return np.zeros(vector_size)
+
+    return np.mean(vectors, axis=0)
+
+
+# create training and testings datasets of the averaged vector saved as a matrix
+X_train_w2v = np.array(
+    [document_vector(tokens, w2v_model, 100) for tokens in tokenized_train]
+)
+X_test_w2v = np.array(
+    [document_vector(tokens, w2v_model, 100) for tokens in tokenized_test]
+)
+
+# create MLP classifier model
+mlp = MLPClassifier(hidden_layer_sizes=(128, 64), max_iter=300, random_state=42)
+
+# time how long it takes to train MLP classifier
+start_train = time.time()
+mlp.fit(X_train_w2v, y_train)
+train_time = time.time() - start_train + w2v_train_time
+
+# time how long it takes for the MLP classifier to predict the test dataset
+start_infer = time.time()
+y_pred = mlp.predict(X_test_w2v)
+inference_time = time.time() - start_infer
+
+# get evaluation metrics
+accuracy = accuracy_score(y_test, y_pred)
+precision, recall, f1, _ = precision_recall_fscore_support(
+    y_test, y_pred, average="weighted", zero_division=0
+)
+
+# save evaluation metrics in results list
+results.append(
+    {
+        "Pipeline": "Word2Vec + Neural Network",
+        "Accuracy": accuracy,
+        "Precision": precision,
+        "Recall": recall,
+        "F1-Score": f1,
+        "Training Time (s)": train_time,
+        "Inference Time (s)": inference_time,
+    }
+)
+
+# display evaluation results, including all metrics, timings, and classification results
+print("\n", "-" * 100)
+print("Word2Vec + Neural Network", "\n")
+print(f"Accuracy: {accuracy:.4f}")
+print(f"Precision: {precision:.4f}")
+print(f"Recall: {recall:.4f}")
+print(f"F1-Score: {f1:.4f}")
+print(f"Training Time: {train_time:.4f} seconds")
+print(f"Inference Time: {inference_time:.4f} seconds")
+print("\nClassification Report:")
+print(
+    classification_report(
+        y_test, y_pred, target_names=label_encoder.classes_, zero_division=0
+    )
+)
