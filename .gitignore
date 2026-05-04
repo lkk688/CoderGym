@@ -209,3 +209,7 @@ __marimo__/
 
 #generated outputs
 /output/tasks/
+
+graphics/
+results/
+output/
