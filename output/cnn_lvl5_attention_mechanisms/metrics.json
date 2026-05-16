@@ -1,0 +1,37 @@
+{
+  "baseline": {
+    "train": {
+      "loss": 0.010462590872205814,
+      "accuracy": 0.9967083333333333,
+      "correct": 47842,
+      "total": 48000
+    },
+    "val": {
+      "loss": 0.04580788777904208,
+      "accuracy": 0.9901666666666666,
+      "correct": 11882,
+      "total": 12000
+    },
+    "params": 11172810
+  },
+  "attention": {
+    "train": {
+      "loss": 0.0039065008122391495,
+      "accuracy": 0.9987916666666666,
+      "correct": 47942,
+      "total": 48000
+    },
+    "val": {
+      "loss": 0.03245923362172281,
+      "accuracy": 0.9926666666666667,
+      "correct": 11912,
+      "total": 12000
+    },
+    "params": 11261890
+  },
+  "comparison": {
+    "param_increase_percent": 0.7972927132923588,
+    "accuracy_gain": 0.0025000000000000577,
+    "efficiency_ratio": 3.1891708531693617
+  }
+}

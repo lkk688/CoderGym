@@ -1,0 +1,7 @@
+{
+  "embedding_training_loss": 2.9972058225561073,
+  "avg_word_pair_similarity": 0.3477613503734271,
+  "embedding_norm": 19.597349166870117,
+  "sentiment_accuracy": 0.8500000238418579,
+  "vocab_size": 45
+}

@@ -93,6 +93,36 @@
             }
         },
         {
+            "series": "Linear Regression",
+            "level": 5,
+            "id": "linreg_lvl5_diabetes_adamw",
+            "algorithm": "Linear Regression (Diabetes + AdamW)",
+            "description": "Apply linear regression to sklearn diabetes dataset with AdamW optimizer and LR scheduling.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Use sklearn.datasets.load_diabetes; standardized features and train/validation split.",
+                "implementation": "PyTorch nn.Linear with AdamW + ReduceLROnPlateau.",
+                "evaluation": "evaluate() must return MSE, R2, MAE on validation split.",
+                "validation": "Assert quality thresholds for R2, MSE, and train/val generalization gap.",
+                "artifacts": "Save model.pt, history.npz, and metrics.json."
+            }
+        },
+        {
+            "series": "Linear Regression",
+            "level": 6,
+            "id": "linreg_lvl6_huber_earlystop",
+            "algorithm": "Robust Linear Regression (Huber + Early Stopping)",
+            "description": "Train linear regression on outlier-corrupted synthetic data using Huber loss, gradient clipping, and early stopping.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Synthetic multivariate regression with injected outliers.",
+                "implementation": "PyTorch nn.Linear with HuberLoss, Adam, gradient clipping, and early stopping on validation loss.",
+                "evaluation": "evaluate() must return MSE, R2, MAE on validation split.",
+                "validation": "Assert robust performance thresholds and overfitting guardrails.",
+                "artifacts": "Save model.pt, history.npz, and metrics.json."
+            }
+        },
+        {
             "series": "Logistic Regression",
             "level": 1,
             "id": "logreg_lvl1_binary_raw",
@@ -148,6 +178,36 @@
                 "implementation": "Compute ECE (Expected Calibration Error) manually; optimize threshold for F1.",
                 "visualization": "Reliability diagram + ROC curve.",
                 "validation": "ECE decreases after calibration step (compare before/after)."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 5,
+            "id": "logreg_lvl5_breast_cancer_l1",
+            "algorithm": "Logistic Regression (Breast Cancer + L1)",
+            "description": "Binary logistic regression on breast cancer data with BCEWithLogits and L1 regularization.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Use sklearn.datasets.load_breast_cancer with standardized features.",
+                "implementation": "PyTorch linear logits model, BCEWithLogitsLoss, and L1 penalty term.",
+                "evaluation": "evaluate() must include MSE, R2, accuracy, F1, precision, recall, and ROC-AUC on validation.",
+                "validation": "Assert accuracy/F1/AUC thresholds and train/val gap constraints.",
+                "artifacts": "Save model.pt, history.npz, and metrics.json."
+            }
+        },
+        {
+            "series": "Logistic Regression",
+            "level": 6,
+            "id": "logreg_lvl6_iris_label_smoothing",
+            "algorithm": "Softmax Logistic Regression (Iris + Label Smoothing)",
+            "description": "Multiclass logistic regression on Iris with label smoothing and cosine LR scheduler.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "data": "Use sklearn.datasets.load_iris with standardized features and train/validation split.",
+                "implementation": "PyTorch linear multiclass model, CrossEntropyLoss(label_smoothing), Adam + CosineAnnealingLR.",
+                "evaluation": "evaluate() must include MSE, R2, accuracy, macro-F1, and CE loss on validation.",
+                "validation": "Assert macro-F1/accuracy thresholds and loss convergence checks.",
+                "artifacts": "Save model.pt, history.npz, and metrics.json."
             }
         },
         {
@@ -838,6 +898,117 @@
             "interface_protocol": "pytorch_task_v1",
             "requirements": {
                 "validation": "AUC/AP reported with deterministic sampling."
+            }
+        },
+        {
+            "series": "Neural Networks (MLP)",
+            "level": 5,
+            "id": "mlp_lvl5_ensemble_distillation",
+            "algorithm": "Knowledge Distillation (Ensemble Teacher)",
+            "description": "Train ensemble of teachers on MNIST; distill into single compact student model with temperature scaling.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include KL divergence-based distillation loss: L = alpha*CE(student, target) + (1-alpha)*KL(softmax(student/T), softmax(teacher/T))",
+                "data": "MNIST dataset; 80/20 train/validation split.",
+                "implementation": "Train 3 teacher MLPs independently; average their logits; train student with distillation loss at T=4; use Adam optimizer.",
+                "teacher_ensemble": "Each teacher: 256x128x10 architecture; trained to >98% accuracy.",
+                "student": "Compact model: 128x64x10 architecture; should match ensemble accuracy with 50% fewer parameters.",
+                "evaluation": "evaluate() must compute MSE, CE loss, accuracy, and distillation efficiency (student_params / teacher_params ratio) on validation split.",
+                "main_block": "Train teachers, create ensemble, train student, evaluate student vs ensemble accuracy, assert student_accuracy > 0.95 and student achieves >90% of ensemble performance.",
+                "artifacts": "Save teacher models, student model, training history, and comparison metrics."
+            }
+        },
+        {
+            "series": "Convolutional Neural Networks",
+            "level": 5,
+            "id": "cnn_lvl5_attention_mechanisms",
+            "algorithm": "CNN with Squeeze-Excitation Attention",
+            "description": "Implement and evaluate SE-Net (Squeeze-Excitation) attention modules on CIFAR-10 or MNIST.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include SE module formula: x * sigmoid(FC2(ReLU(FC1(GlobalAvgPool(x)))); explain channel attention.",
+                "architecture": "Build ResNet-18 style backbone with SE blocks after each residual block.",
+                "data": "CIFAR-10 or MNIST; normalized; 80/20 train/validation split.",
+                "implementation": "Implement SEBlock as nn.Module; integrate into CNN; compare baseline vs attention-enhanced.",
+                "comparison": "Train both with and without SE modules; report parameter count and accuracy difference.",
+                "evaluation": "evaluate() must compute accuracy, CE loss, and per-channel attention weights on validation split.",
+                "main_block": "Train both models, evaluate both splits, print architecture comparisons, assert attention model >= baseline accuracy.",
+                "visualization": "Save attention weight heatmaps on sample images.",
+                "artifacts": "Save both models, attention visualizations, and training curves."
+            }
+        },
+        {
+            "series": "Natural Language Processing",
+            "level": 1,
+            "id": "nlp_lvl1_text_embedding",
+            "algorithm": "Word Embeddings (Word2Vec Skip-gram Simplified)",
+            "description": "Implement simplified Skip-gram word embeddings on a small corpus; build sentiment classifier on top.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include Skip-gram objective: log p(context|target) = log sigmoid(context.dot(target)) for positive pairs + negative sampling.",
+                "corpus": "Use small movie reviews corpus (toy dataset or sklearn 20newsgroups subset); build vocabulary of ~5k words.",
+                "embedding_training": "Train 100-dim embeddings with negative sampling; 10 negative samples per positive; SGD with momentum.",
+                "downstream_task": "Train simple logistic regression classifier on embedding representations for sentiment prediction (IMDB-like toy task).",
+                "embedding_eval": "Check that similar words have similar vectors; report top-5 similar words for 'good', 'bad', 'movie'.",
+                "evaluation": "evaluate() must compute sentiment classification accuracy, embedding similarity metrics (cosine), and word analogy performance on validation split.",
+                "main_block": "Train embeddings, verify similarity, train sentiment classifier, evaluate both, assert embeddings capture semantic meaning and classifier accuracy > 0.75.",
+                "artifacts": "Save learned embeddings, vocabulary, and sentiment model."
+            }
+        },
+        {
+            "series": "Robust Neural Networks",
+            "level": 1,
+            "id": "robust_lvl1_adversarial_training",
+            "algorithm": "Adversarial Robustness (FGSM Attacks & Defense)",
+            "description": "Implement FGSM attack and adversarial training to improve model robustness on MNIST.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include FGSM perturbation: x_adv = x + eps * sign(grad_x(L(x,y))); explain adversarial loss mix.",
+                "attack_method": "Fast Gradient Sign Method (FGSM) with epsilon=0.3 (8/255 normalized for MNIST).",
+                "baseline_model": "Train standard CNN without adversarial robustness; measure clean and adversarial accuracy.",
+                "defense_training": "Adversarial training: 80% clean samples + 20% FGSM-attacked samples; lambda_adv=0.5 in loss.",
+                "robust_model": "Train robust model for same epochs; compare to baseline.",
+                "evaluation": "evaluate() must compute: clean_accuracy, robust_accuracy (under FGSM), accuracy_drop, and robustness_gap on validation split.",
+                "internal_testing": "Verify gradient computation for attacks; test perturbation bounds.",
+                "main_block": "Train baseline, evaluate clean+adversarial, train robust model, compare robustness, assert robust_accuracy > baseline_robust_accuracy and clean_accuracy > 0.95.",
+                "visualization": "Save corrupted image examples showing FGSM perturbations.",
+                "artifacts": "Save both models, perturbation examples, and robustness report."
+            }
+        },
+        {
+            "series": "Natural Language Processing",
+            "level": 2,
+            "id": "nlp_lvl2_bigframe_embeddings",
+            "algorithm": "BigQuery Bigframe Embeddings with Semantic Similarity",
+            "description": "Load text data from BigQuery Bigframe; generate embeddings using Vertex AI Embeddings API; build neural network for semantic similarity prediction.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "bigquery_integration": "Demonstrate BigQuery Bigframe data loading with SQL queries (LIMIT, WHERE clauses, SELECT); include proper error handling and fallback to local data when BigQuery unavailable.",
+                "math": "Include cosine similarity: sim(e_i, e_j) = (e_i · e_j) / (||e_i|| ||e_j||); contrastive loss with temperature scaling.",
+                "data_source": "Query public dataset (e.g., Google STS benchmark) or fallback to local semantic similarity pairs; load 20+ text pairs with similarity labels (1=similar, 0=dissimilar).",
+                "embeddings": "Use Vertex AI TextEmbedding API (768-dim) when credentials available; provide local simulation for testing (hash-based deterministic embeddings preserving semantic relationships).",
+                "model": "Build MLP classifier: concat(emb1, emb2, emb1*emb2, |emb1-emb2|) -> 512-dim hidden -> binary classification.",
+                "evaluation": "evaluate() must compute accuracy, loss, and per-class metrics on validation split; verify embedding quality through similarity consistency checks.",
+                "main_block": "Load from Bigframe, generate embeddings, build and train model, evaluate on both splits, assert validation_accuracy > 0.60 and training_accuracy > 0.65.",
+                "artifacts": "Save model, embedding cache summary, metrics, and training history."
+            }
+        },
+        {
+            "series": "Natural Language Processing",
+            "level": 3,
+            "id": "nlp_lvl3_bigframe_llm_classification",
+            "algorithm": "BigQuery Bigframe LLM Text Classification",
+            "description": "Load text classification data from BigQuery Bigframe; generate LLM features and augmentations using Vertex AI LLM API; train ensemble-style classifier combining original and augmented representations.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "bigquery_integration": "Demonstrate BigQuery Bigframe SQL queries with WHERE, GROUP BY, HAVING clauses for text classification data; include connection error handling and fallback mechanism.",
+                "data_loading": "Query public dataset (e.g., DBpedia or text classification benchmark) with proper SQL filters; load 30+ texts with 3 class labels; demonstrate Bigframe to pandas conversion.",
+                "llm_feature_generation": "Use Vertex AI LLM API for semantic feature extraction (keyword extraction, summarization-based features) when credentials available; provide local simulation using text statistics and hashing for testing.",
+                "augmentation": "Implement text augmentation through LLM paraphrasing (50% of data augmented); generate alternative phrasings preserving meaning for improved generalization.",
+                "model": "Build MLP classifier: concat(original_features, augmented_features) -> 256-dim hidden with batch norm -> softmax over 3 classes.",
+                "evaluation": "evaluate() must compute multi-class accuracy, CE loss, and per-class accuracies on validation split; report feature cache statistics.",
+                "main_block": "Load from Bigframe, generate LLM features and augmentations, train classifier on combined features, evaluate both splits, assert validation_accuracy > 0.60 and feature_cache_generated.",
+                "artifacts": "Save model, feature cache summary, augmentation examples, metrics, and training history with per-class performance."
             }
         }
     ]

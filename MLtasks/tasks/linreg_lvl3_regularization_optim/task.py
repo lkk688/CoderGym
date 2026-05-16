@@ -7,6 +7,9 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 # Set seeds for reproducibility
 def get_task_metadata():
@@ -184,6 +187,7 @@ def predict(model, X, device=None):
         X_tensor = torch.FloatTensor(X).to(device)
         predictions = model(X_tensor)
         return predictions.cpu().numpy()
+    
 
 def save_artifacts(model, train_losses, val_losses, X_train, y_train, X_val, y_val, 
                    output_dir="output", filename_prefix="linreg_lvl3"):

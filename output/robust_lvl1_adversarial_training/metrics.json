@@ -1,0 +1,17 @@
+{
+  "baseline": {
+    "clean_accuracy": 0.99175,
+    "adversarial_accuracy": 0.7293333333333333,
+    "robustness_gap": 0.26241666666666674
+  },
+  "robust": {
+    "clean_accuracy": 0.993,
+    "adversarial_accuracy": 0.9555,
+    "robustness_gap": 0.03749999999999998
+  },
+  "improvements": {
+    "adversarial_accuracy_gain": 0.22616666666666674,
+    "clean_accuracy_trade_off": -0.0012499999999999734,
+    "gap_reduction": 0.22491666666666676
+  }
+}

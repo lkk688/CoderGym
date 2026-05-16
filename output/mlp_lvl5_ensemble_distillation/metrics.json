@@ -1,0 +1,32 @@
+{
+  "teachers": {
+    "teacher_0": {
+      "accuracy": 0.97325,
+      "ce_loss": 0.10132567092087096,
+      "correct": 11679,
+      "total": 12000
+    },
+    "teacher_1": {
+      "accuracy": 0.9791666666666666,
+      "ce_loss": 0.08584917902678965,
+      "correct": 11750,
+      "total": 12000
+    },
+    "teacher_2": {
+      "accuracy": 0.9749166666666667,
+      "ce_loss": 0.0946680541472891,
+      "correct": 11699,
+      "total": 12000
+    }
+  },
+  "ensemble_accuracy": 0.9813333333333333,
+  "student": {
+    "accuracy": 0.97525,
+    "ce_loss": 0.09860549226992744,
+    "correct": 11703,
+    "total": 12000,
+    "ensemble_accuracy": 0.9813333333333333,
+    "accuracy_ratio": 0.9938009510869565
+  },
+  "compression_ratio": 0.1550611109693552
+}

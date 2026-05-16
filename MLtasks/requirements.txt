@@ -1,0 +1,21 @@
+# Core numerical / ML stack used by most task.py scripts
+numpy
+scipy
+scikit-learn
+matplotlib
+seaborn
+pillow
+
+# PyTorch ecosystem
+torch
+torchvision
+
+# Graph / advanced tasks
+torch-geometric
+
+# Export / inference tasks
+onnx
+onnxruntime
+
+# ANN indexing tasks (not universally available on all Windows setups)
+faiss-cpu; platform_system != "Windows"

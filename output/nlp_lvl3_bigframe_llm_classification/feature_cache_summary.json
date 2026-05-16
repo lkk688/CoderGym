@@ -1,0 +1,5 @@
+{
+  "feature_cache_size": 128,
+  "augmentation_cache_size": 38,
+  "feature_dim": 512
+}
